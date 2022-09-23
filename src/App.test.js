@@ -40,6 +40,13 @@ test('square.copy() method', () => {
   expect(model.puzzle.squares[0].copy()).not.toBe(model.puzzle.squares[0]);
 })
 
+/**for this test case, needs to import the top level App */
+// test('Properly render...', () => {
+//   const { getByText } = render(<App />);
+//   const movesElement = getByText(/congratulations:/i);
+//   expect(movesElement).toBeInTheDocument();
+// })
+
 // config 2
 
 var actualPuzzle2 = getActualPuzzle(configuration_2);
