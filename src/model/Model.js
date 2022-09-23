@@ -89,6 +89,19 @@ export class Puzzle {
     //availableMoves()
 
     //copy()/or clone()
+    clone() {
+        let copy = new Puzzle(this.numRows, this.numColumns);
+        copy.squares = [];
+        for (let sq of this.squares) {
+            let dup = sq.copy();
+            copy.squares.push(dup);
+            if (sq === this.selected) {
+                copy.selected = dup;
+            }
+        }
+        return copy;
+    }
+
 
     /**
      * +2	PlanarPuzzle(info)	+1 for constructor; +1 for incoming info 
@@ -119,7 +132,7 @@ export default class Model {
         this.info = info;
     }
     initialize(info) {
-        let name = info.name;
+        //let name = info.name;
         let numRows = parseInt(info.numRows);
         let numColumns = parseInt(info.numColumns);
 
@@ -173,4 +186,11 @@ export default class Model {
 
 
     //copy()
+    copy() {
+        let m = new Model(this.info);
+        m.puzzle = this.puzzle.clone();
+        m.showLabels = this.showLabels;
+        m.victory = this.victory;
+        return m;
+    }
 }

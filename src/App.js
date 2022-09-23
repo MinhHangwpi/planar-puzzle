@@ -7,6 +7,7 @@ import Model from './model/Model.js';
 import { configuration_1, configuration_2, configuration_3, getActualPuzzle } from './model/PuzzleConfig.js';
 import { Up, Down, Left, Right } from './model/Model.js';
 import { redrawCanvas } from './boundary/Boundary';
+import { selectSquare } from './controller/Controller';
 
 
 // a function to parse config information
@@ -28,6 +29,10 @@ function App() {
     redrawCanvas(model, canvasRef.current, appRef.current);
   }, [model]) //this second argument is CRITICAL, since it declares when to refresh
 
+  const handleClick = (e) => {
+    let newModel = selectSquare(model, canvasRef.current, e);
+    setModel(newModel);
+  }
 
   return (
     <main style={layout.Appmain} ref={appRef}>
@@ -36,9 +41,10 @@ function App() {
         ref={canvasRef}
         width={layout.canvas.width}
         heigh={layout.canvas.height}
+        onClick={handleClick}
       />
 
-    {/* <label>"numRows: " {model.puzzle.numRows}</label>
+      {/* <label>"numRows: " {model.puzzle.numRows}</label>
     <label>"numColumns: " {model.puzzle.numColumns}</label> */}
 
       <label style={layout.text}> {model.isVictorious() ? "Congratulations" : null}</label>
