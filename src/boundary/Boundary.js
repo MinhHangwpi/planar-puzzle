@@ -67,5 +67,4 @@ export function redrawCanvas(model, canvasObj, appObj) {
     if (model.puzzle) {
         drawPuzzle(ctx, model.puzzle, model.showLabels);
     }
-
 }

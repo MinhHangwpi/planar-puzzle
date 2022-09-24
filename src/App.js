@@ -7,7 +7,7 @@ import Model from './model/Model.js';
 import { configuration_1, configuration_2, configuration_3, getActualPuzzle } from './model/PuzzleConfig.js';
 import { Up, Down, Left, Right } from './model/Model.js';
 import { redrawCanvas } from './boundary/Boundary';
-import { selectSquare } from './controller/Controller';
+import { selectSquare, unselectSquare } from './controller/Controller';
 
 
 // a function to parse config information
@@ -34,6 +34,11 @@ function App() {
     setModel(newModel);
   }
 
+  const unselectHandler = (e) => {
+    let newModel = unselectSquare(model);
+    setModel(newModel);
+  }
+
   return (
     <main style={layout.Appmain} ref={appRef}>
       <canvas tabIndex="1"
@@ -43,6 +48,8 @@ function App() {
         heigh={layout.canvas.height}
         onClick={handleClick}
       />
+
+      <button onClick={unselectHandler}> Unselect </button> 
 
       {/* <label>"numRows: " {model.puzzle.numRows}</label>
     <label>"numColumns: " {model.puzzle.numColumns}</label> */}

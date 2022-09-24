@@ -40,7 +40,7 @@ export class Square {
 
     copy() {
         let s = new Square(this.row, this.column, this.isUnused, this.color);
-        s.selected = this.selected;
+        //s.selected = this.selected;
         return s;
     }
 }
@@ -77,9 +77,14 @@ export class Puzzle {
         this.selected = square;
     }
 
+    unSelect() {
+        this.selected = null;
+    }
+
     isSelected(square) {
         return square === this.selected;
     }
+
     //isValidExtend
 
     //extendColor
