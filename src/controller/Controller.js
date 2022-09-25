@@ -36,7 +36,34 @@ export function unselectSquare(model) {
 }
 
 
-export function setConfiguration(model, configName){
-    var actualPuzzle = getActualPuzzle(configName);
+export function setConfiguration(configObject){
+    var actualPuzzle = getActualPuzzle(configObject);
     return new Model(actualPuzzle);
+}
+
+/**helper method to get config object by config name*/
+function translateConfig(configName){
+    if (configName === "Configuration #1"){
+        return configuration_1;
+    } else if (configName === "Configuration #2") {
+        return configuration_2;
+    } else {
+        return configuration_3;
+    }
+}
+
+
+export function resetPuzzle(model){
+    let currentConfigName = model.info.name;
+    //call the function to turn config name to config object
+    setConfiguration(translateConfig(currentConfigName));
+}
+
+
+export function extendColorController(model, fromNeighborIdx){ //direction represented by 0 - 1 - 2 - 3
+    //get the color and label of fromNeighbor
+    let selected = model.puzzle.selected;
+    let fromNeighbor = model.puzzle.neighbors(selected)[fromNeighborIdx];
+    model.puzzle.extendColor(fromNeighbor);
+    return model.copy();
 }

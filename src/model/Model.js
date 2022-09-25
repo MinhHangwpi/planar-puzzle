@@ -23,23 +23,27 @@ export const NoMove = new ExtendType(0, 0, "*");  // no move is possible
 
 
 export class Square {
-    constructor(row, column, isUnused, color) {
+    constructor(row, column, isUnused, color, label) {
         this.row = row;
         this.column = column;
         this.isUnused = isUnused;
         this.color = color;
-        //this.selected = false; //check again to see if this overlaps with .select in Puzzle.
+        //label = null at first;
+        this.label = label;
     }
 
-    //selectSquare(): boolean
-
     //fillColor(color) : boolean
+    fillColor(color) {
+        this.color = color;
+    }
 
     //addLabel(): boolean; automatically add label based on status of surrounding neighbors and movetypes
-
+    addLabel(string) {
+        this.label = string;
+    }
 
     copy() {
-        let s = new Square(this.row, this.column, this.isUnused, this.color);
+        let s = new Square(this.row, this.column, this.isUnused, this.color, this.label);
         //s.selected = this.selected;
         return s;
     }
@@ -58,22 +62,11 @@ export class Puzzle {
 
     getSquareByLoc(row, column) {
         let idx = row * this.numRows + column;
-    }
-
-    //neighbors
-    neighbors(square) {
-        let neighborsList = [];
-        let sRow = square.row;
-        let sColumn = square.column;
-
-        let left = this.getSquareByLoc(sRow - 1, sColumn);
-        let right = this.getSquareByLoc(sRow + 1, sColumn);
-        let up = this.getSquareByLoc(sRow, sColumn + 1);
-        let down = this.getSquareByLoc(sRow, sColumn - 1);
-
+        return this.squares[idx];
     }
 
     select(square) {
+        if (square.isUnused) { return; }
         this.selected = square;
     }
 
@@ -85,9 +78,99 @@ export class Puzzle {
         return square === this.selected;
     }
 
+    neighbors(square) {
+        let neighborsList = [];
+        let sRow = square.row;
+        let sColumn = square.column;
+
+        let left = null;
+        let right = null;
+        let up = null;
+        let down = null;
+
+        //get left neighbor:
+        if (sColumn > 0 && sColumn < this.numColumns) {
+            left = this.getSquareByLoc(sRow, sColumn - 1);
+        }
+
+        //get right neighbor:
+        if (sColumn >= 0 && sColumn < this.numColumns - 1) {
+            right = this.getSquareByLoc(sRow, sColumn + 1);
+        }
+
+        //get up neighbors:
+        if (sRow > 0 && sRow < this.numRows) {
+            up = this.getSquareByLoc(sRow - 1, sColumn);
+        }
+        // get down neighbors:
+        if (sRow >= 0 && sRow < this.numRows - 1) {
+            down = this.getSquareByLoc(sRow + 1, sColumn);
+        }
+
+        neighborsList.push(left);
+        neighborsList.push(right);
+        neighborsList.push(up);
+        neighborsList.push(down);
+
+        return neighborsList;
+    }
+
+
+
     //isValidExtend
 
+    isValidExtend(fromSquare) {
+        //this.selected fromSquare
+        //** An empty square (+1) is adjacent in a given direction (+1) to a square filled with a color (+1) that has the highest label number for that color (+1). */
+        if (this.selected.isUnused || this.selected.color || !fromSquare.color || fromSquare.isUnused) { //note: need to add condition that the fromSquare has the highest label number.
+            return false;
+        }
+        //check if the fromSquare has the highest label number or is either empty Square.
+        if (fromSquare.label === 'base') {
+            return true;
+        }
+
+        // if fromSquare.label is a number => must make sure it has the highest label
+        let fSNeighbors = this.neighbors(fromSquare);
+
+        return ((fSNeighbors[0] !== null) && (fSNeighbors[0].label !== null) && (+fromSquare.label > +fSNeighbors[0].label)) ||
+            ((fSNeighbors[1] !== null) && (fSNeighbors[1].label !== null) && (+fromSquare.label > +fSNeighbors[1].label)) ||
+            ((fSNeighbors[2] !== null) && (fSNeighbors[2].label !== null) && (+fromSquare.label > +fSNeighbors[2].label)) ||
+            ((fSNeighbors[3] !== null) && (fSNeighbors[3].label !== null) && (+fromSquare.label > +fSNeighbors[3].label))
+    }
+
+
     //extendColor
+    /**
+     * 
+     * @returns /**
+         * if no square is selected, return false;
+         * else:
+         *      this.selected.label - fromSquare.label.
+         * 
+         * if label == null => false
+         * if label === a color => this.selected.label = 1
+         * if label != a color but is a number => this.selected.label = fromSquare.label + 1
+         */
+    extendColor(fromSquare) {
+        if (!this.selected || !this.isValidExtend(fromSquare)) { return; }
+
+        if (fromSquare.label === 'base') {
+            this.selected.addLabel("1");
+            this.selected.fillColor(fromSquare.color);
+            return;
+        }
+
+        if (fromSquare.label !== null && typeof (+fromSquare.label) === 'number') {
+            let fSNumericLabel = +fromSquare.label;
+            this.selected.addLabel(fSNumericLabel + 1);
+            this.selected.fillColor(fromSquare.color);
+            return;
+        }
+    }
+
+
+
 
     //hasWon()
 
@@ -106,7 +189,6 @@ export class Puzzle {
         }
         return copy;
     }
-
 
     /**
      * +2	PlanarPuzzle(info)	+1 for constructor; +1 for incoming info 
@@ -137,7 +219,7 @@ export default class Model {
         this.info = info;
     }
     initialize(info) {
-        //let name = info.name;
+        let name = info.name;
         let numRows = parseInt(info.numRows);
         let numColumns = parseInt(info.numColumns);
 
@@ -146,20 +228,20 @@ export default class Model {
         let allSquares = [] //numRows * numColumns in length.
         for (let i = 0; i < numRows; i++) {
             for (let j = 0; j < numColumns; j++) {
-                let aSquare = new Square(i, j, false, null);
+                let aSquare = new Square(i, j, false, null, null);
                 allSquares.push(aSquare);
             }
         }
 
         //special pieces
         for (let sq of info.baseSquares) {
-            let bSquare = new Square(parseInt(sq.row), parseInt(sq.column), false, sq.color); //note that isUnused of baseSquares is false
+            let bSquare = new Square(parseInt(sq.row), parseInt(sq.column), false, sq.color, 'base'); //note that isUnused of baseSquares is false
             let idx = allSquares.findIndex(square => (square.row == bSquare.row && square.column === bSquare.column));
             allSquares.splice(idx, 1, bSquare);
         }
         //unused squares
         for (let sq of info.unusedSquares) {
-            let uSquare = new Square(parseInt(sq.row), parseInt(sq.column), true, 'black');
+            let uSquare = new Square(parseInt(sq.row), parseInt(sq.column), true, 'black', null);
             let idx = allSquares.findIndex(square => (square.row === uSquare.row && square.column === uSquare.column));
             allSquares.splice(idx, 1, uSquare);
         }
@@ -170,10 +252,7 @@ export default class Model {
         this.showLabels = false;
     }
 
-    //setConfiguration(); parameter (config_name)
-
-
-
+    //setConfiguration()
 
     //setVictorious()
     setVictorious() {
@@ -199,3 +278,5 @@ export default class Model {
         return m;
     }
 }
+
+//

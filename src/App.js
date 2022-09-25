@@ -7,7 +7,7 @@ import Model from './model/Model.js';
 import { configuration_1, configuration_2, configuration_3, getActualPuzzle } from './model/PuzzleConfig.js';
 import { Up, Down, Left, Right } from './model/Model.js';
 import { redrawCanvas } from './boundary/Boundary';
-import { selectSquare, unselectSquare } from './controller/Controller';
+import { selectSquare, setConfiguration, unselectSquare, resetPuzzle, extendColorController } from './controller/Controller';
 
 
 // a function to parse config information
@@ -39,6 +39,22 @@ function App() {
     setModel(newModel);
   }
 
+  const configurationHandler = (configName) => {
+    let newModel = setConfiguration(configName);
+    setModel(newModel);
+  }
+
+  const resetPuzzleHandler = (e) => {
+    let newModel = resetPuzzle(model);
+    setModel(newModel);
+  }
+
+  const extendFromHandler = (fromNeighBorIdx) => {
+    let newModel = extendColorController(model, fromNeighBorIdx);
+    setModel(newModel);
+  }
+
+
   return (
     <main style={layout.Appmain} ref={appRef}>
       <canvas tabIndex="1"
@@ -49,25 +65,25 @@ function App() {
         onClick={handleClick}
       />
 
-      <button onClick={unselectHandler}> Unselect </button> 
-
-      {/* <label>"numRows: " {model.puzzle.numRows}</label>
-    <label>"numColumns: " {model.puzzle.numColumns}</label> */}
+      <button onClick={unselectHandler}> Unselect </button>
 
       <label style={layout.text}> {model.isVictorious() ? "Congratulations" : null}</label>
-      <button style={layout.resetbutton}> Reset Puzzle</button>
+      
+      <button style={layout.resetbutton} onClick={resetPuzzleHandler}> Reset Puzzle</button>
+{/* 
+      onClick={resetPuzzleHandler} */}
 
       <div style={layout.buttons}>
-        <button style={layout.easybutton}> level: easy</button>
-        <button style={layout.mediumbutton}> level: medium</button>
-        <button style={layout.hardbutton}> level: hard</button>
+        <button style={layout.easybutton} onClick={(e) => configurationHandler(configuration_1)}> level: easy</button>
+        <button style={layout.mediumbutton} onClick={(e) => configurationHandler(configuration_2)}> level: medium</button>
+        <button style={layout.hardbutton} onClick={(e) => configurationHandler(configuration_3)}> level: hard</button>
       </div>
 
       <div style={layout.buttons}>
-        <button style={layout.upbutton}>^</button>
-        <button style={layout.downbutton}>v</button>
-        <button style={layout.leftbutton}>&lt;</button>
-        <button style={layout.rightbutton}>&gt;</button>
+        <button style={layout.leftbutton} onClick={(e) => extendFromHandler(0)}>&lt;</button>
+        <button style={layout.rightbutton} onClick={(e) => extendFromHandler(1)}>&gt;</button>
+        <button style={layout.upbutton} onClick={(e) => extendFromHandler(2)}>^</button>
+        <button style={layout.downbutton} onClick={(e) => extendFromHandler(3)}>v</button>
 
       </div>
 

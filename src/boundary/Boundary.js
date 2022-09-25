@@ -22,8 +22,6 @@ export class VisualSquare {
     }
 }
 
-
-
 /** Map square into the puzzle view*/
 
 export function computeSquare(square) {
@@ -53,6 +51,11 @@ export function drawPuzzle(ctx, puzzle, showLabels) {
         }
         //ctx.shadowBlur = 10;
         ctx.fillRect(sq.row, sq.column, sq.width, sq.height); // draw a filled rectangle whose starting point at (x, y)
+        
+        // if (square.color) {
+        //     ctx.fillText(square.color, sq.row, sq.column);
+        // }
+        ctx.fillText(square.label, sq.row, sq.column) // issue with label here.
     })
 }
 
