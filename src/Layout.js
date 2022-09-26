@@ -1,68 +1,58 @@
 export const layout = {
     canvas: {
-        height: "500",
-        width: "500",
+        height: 1000,
+        width: 900,
     },
 
     Appmain: {
-        backgroundColor: 'purple',
+        backgroundColor: '#f9f4ec',
         height: '100vh',
         width: '100vw'
     },
     text: {
         position: "absolute",
-        left: 500,
+        left: "50%",
         top: 50,
         color: "yellow",
         backgroundColor: "#320453",
-        width: 150,
     },
 
-    buttons: {
-        position: "absolute",
-        left: 550,
-        top: 90
-    },
+buttons: {
+    position: "absolute",
+        left: "50%",
+            top: "25%"
+},
 
-    upbutton: {
-        position: "absolute",
+upbutton: {
+    position: "absolute",
         left: 50,
-        top: 80,
+            top: 80,
     },
 
-    downbutton: {
-        position: "absolute",
+downbutton: {
+    position: "absolute",
         left: 50,
-        top: 120,
+            top: 120,
     },
 
-    leftbutton: {
-        position: "absolute",
+leftbutton: {
+    position: "absolute",
         top: 100,
     },
 
-    rightbutton: {
-        position: "absolute",
+rightbutton: {
+    position: "absolute",
         top: 100,
-        left: 100,
+            left: 100,
     },
-    resetbutton: {
-        postion: "absolute",
+resetbutton: {
+    postion: "absolute",
         top: 100,
-        left: 200
-    },
-    easybutton: {
-        position: "absolute",
-        top : 240
-    },
-    mediumbutton: {
-        position: "absolute",
-        top : 240,
-        left: 50
-    },
-    hardbutton: {
-        position: "absolute",
-        top : 240,
-        left: 120
-    }
+            left: 200
+},
+levels: {
+    position: "absolute",
+        top: "50%",
+            left: "50%"
+}
 }

@@ -56,7 +56,7 @@ function translateConfig(configName){
 export function resetPuzzle(model){
     let currentConfigName = model.info.name;
     //call the function to turn config name to config object
-    setConfiguration(translateConfig(currentConfigName));
+    return setConfiguration(translateConfig(currentConfigName));
 }
 
 
@@ -65,5 +65,7 @@ export function extendColorController(model, fromNeighborIdx){ //direction repre
     let selected = model.puzzle.selected;
     let fromNeighbor = model.puzzle.neighbors(selected)[fromNeighborIdx];
     model.puzzle.extendColor(fromNeighbor);
+
+    model.setVictorious();
     return model.copy();
 }

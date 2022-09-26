@@ -60,13 +60,17 @@ export class Puzzle {
         this.squares = squares.map(p => p.copy());
     }
 
+    getIndexByLoc(row, column) {
+        return row * this.numColumns + column;
+    }
+
     getSquareByLoc(row, column) {
-        let idx = row * this.numRows + column;
+        let idx = this.getIndexByLoc(row, column);
         return this.squares[idx];
     }
 
     select(square) {
-        if (square.isUnused) { return; }
+        if (square.isUnused || this.isFull()) { return; }
         this.selected = square;
     }
 
@@ -115,14 +119,10 @@ export class Puzzle {
         return neighborsList;
     }
 
-
-
-    //isValidExtend
-
     isValidExtend(fromSquare) {
-        //this.selected fromSquare
-        //** An empty square (+1) is adjacent in a given direction (+1) to a square filled with a color (+1) that has the highest label number for that color (+1). */
-        if (this.selected.isUnused || this.selected.color || !fromSquare.color || fromSquare.isUnused) { //note: need to add condition that the fromSquare has the highest label number.
+        //    An empty square (+1) is adjacent in a given direction (+1) to a square filled with a color (+1) that has the highest label number for that color (+1). */
+
+        if ((this.selected.isUnused) || (this.selected.color !== null) || (fromSquare.color === null) || (fromSquare.isUnused) || (fromSquare.label === null)) { //note: need to add condition that the fromSquare has the highest label number.
             return false;
         }
         //check if the fromSquare has the highest label number or is either empty Square.
@@ -131,27 +131,58 @@ export class Puzzle {
         }
 
         // if fromSquare.label is a number => must make sure it has the highest label
-        let fSNeighbors = this.neighbors(fromSquare);
+        let nbs = this.neighbors(fromSquare);
+        let count = 0;
 
-        return ((fSNeighbors[0] !== null) && (fSNeighbors[0].label !== null) && (+fromSquare.label > +fSNeighbors[0].label)) ||
-            ((fSNeighbors[1] !== null) && (fSNeighbors[1].label !== null) && (+fromSquare.label > +fSNeighbors[1].label)) ||
-            ((fSNeighbors[2] !== null) && (fSNeighbors[2].label !== null) && (+fromSquare.label > +fSNeighbors[2].label)) ||
-            ((fSNeighbors[3] !== null) && (fSNeighbors[3].label !== null) && (+fromSquare.label > +fSNeighbors[3].label))
+        for (let nb of nbs) {
+            if (nb) {
+                if ((nb.color === fromSquare.color) && (fromSquare.label > nb.label || nb.label == 'base')) {
+                    count += 1;
+                }
+            }
+        }
+        if (count >= 1) {
+            return true;
+        }
+        return false;
     }
 
+    //&& (fromSquare.label > nb.label || nb.label == 'base')
 
-    //extendColor
-    /**
-     * 
-     * @returns /**
-         * if no square is selected, return false;
-         * else:
-         *      this.selected.label - fromSquare.label.
-         * 
-         * if label == null => false
-         * if label === a color => this.selected.label = 1
-         * if label != a color but is a number => this.selected.label = fromSquare.label + 1
-         */
+    isPath(base1, base2) {
+        let queue = [];
+        queue.push(base1);
+        let visited = [];
+        visited.push(base1);
+
+        while (queue.length !== 0) {
+
+            let y = queue.shift(); // pop the element in the front and return it.
+            let nbs = this.neighbors(y);
+            for (let nb of nbs) {
+                if (nb) {
+                    if (!visited.includes(nb) && (nb.color === y.color) && (+nb.label > +y.label || nb.label === 'base' || y.label === 'base')) {
+                        visited.push(nb);
+                        if (nb === base2) {
+                            return true;
+                        }
+                        queue.push(nb);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    isFull() {
+        for (let square of this.squares) {
+            if (!square.isUnused && !square.color) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     extendColor(fromSquare) {
         if (!this.selected || !this.isValidExtend(fromSquare)) { return; }
 
@@ -169,12 +200,34 @@ export class Puzzle {
         }
     }
 
-
-
+    getBasePairs() {
+        let allBases = [];
+        for (let square of this.squares) {
+            if (square.label === 'base') {
+                allBases.push(square);
+            }
+        }
+        let basePairs = [];
+        while(allBases.length){
+            basePairs.push(allBases.splice(0,2))
+        };  
+        return basePairs;
+    }
 
     //hasWon()
+    hasWon() {
+        if (!this.isFull) {
+            return false;
+        }
+        let basePairs = this.getBasePairs();
+        for (let base of basePairs) {
+            if (!this.isPath(base[0], base[1]) || !this.isPath(base[1], base[0])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-    //availableMoves()
 
     //copy()/or clone()
     clone() {
@@ -189,25 +242,6 @@ export class Puzzle {
         }
         return copy;
     }
-
-    /**
-     * +2	PlanarPuzzle(info)	+1 for constructor; +1 for incoming info 
-+4	neighbors (sq:Square) : Square[*]	+1 for method; +1 for arg; + 2 for response/multiplicity 
-+4	isValidExtend(row:int, col:int, c:Color) : bool	+1 for method; +1 for coordinate position; +1 for color 
-          +1 for result 
-+4	extendColor(row:int, col:int, c:Color) : bool	+1 for method; +1 for coordinate position; +1 for color 
-          +1 for result 
-+2	hasWon() : Boolean	+1 for method; +1 for result
-     */
-
-    // return all blocks
-
-    *blocks() {
-        for (let i = 0; i < this.squares.length; i++) {
-            yield this.squares[i];
-        }
-    }
-
 }
 
 
@@ -252,11 +286,14 @@ export default class Model {
         this.showLabels = false;
     }
 
-    //setConfiguration()
-
     //setVictorious()
     setVictorious() {
-        this.victory = true;
+
+        if (this.puzzle.isFull() && this.puzzle.hasWon()){
+            this.victory = true;
+        } else {
+            this.victory = false;
+        }       
     }
 
 
@@ -267,9 +304,34 @@ export default class Model {
 
 
     //available(direction)
+    // available(idx){
+    //     let fromNeighbor = this.neighbors(this.selected)[idx];
+    //     return this.isValidExtend(fromNeighbor);
 
 
-    //copy()
+    //         //   // if no piece selected? Then none are available.
+    //         //   if (!this.puzzle.selected) { return false; }
+    //         //   if (direction === NoMove) { return false; }
+
+    //         //   // HANDLE WINNING CONDITION. MUST BE AVAILABLE!
+    //         //   if (this.puzzle.selected.isWinner && 
+    //         //       this.puzzle.selected.row === this.puzzle.destination.row && 
+    //         //       this.puzzle.selected.column === this.puzzle.destination.column && 
+    //         //       this.puzzle.finalMove === direction) {
+    //         //       return true;
+    //         //   }
+
+    //         //   let allMoves = this.puzzle.availableMoves();
+    //         //   return allMoves.includes(direction);
+    // }
+    // available(index) {
+    //     let selected = this.puzzle.selected;
+    //     if (!this.puzzle.selected) { return false; }
+
+
+    // }
+
+
     copy() {
         let m = new Model(this.info);
         m.puzzle = this.puzzle.clone();

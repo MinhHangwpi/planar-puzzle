@@ -49,7 +49,7 @@ export function drawPuzzle(ctx, puzzle, showLabels) {
                 ctx.fillStyle = square.color;
             }
         }
-        //ctx.shadowBlur = 10;
+        ctx.shadowBlur = 5;
         ctx.fillRect(sq.row, sq.column, sq.width, sq.height); // draw a filled rectangle whose starting point at (x, y)
         
         // if (square.color) {
@@ -64,10 +64,13 @@ export function redrawCanvas(model, canvasObj, appObj) {
     if (ctx === null) { return; } //here for testing purposes
 
     // clear the canvas area before rendering the coordinations held in state
-    ctx.clearRect(0, 0, canvasObj.width, canvasObj.height);
 
+    ctx.clearRect(0, 0, canvasObj.width, canvasObj.height);
 
     if (model.puzzle) {
         drawPuzzle(ctx, model.puzzle, model.showLabels);
     }
+
+
+
 }
