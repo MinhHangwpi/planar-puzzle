@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 //import Model from './model/Model'; //note: duplicate with line 9
 import App from './App';
 
@@ -19,6 +19,12 @@ test('when initilized, a config 1 puzzle has 8 squares', () => {
   var model = new Model(actualPuzzle);
   expect(model.puzzle.squares.length).toBe(8);
 })
+
+// test('Properly renders no "congratulations" label', () => {
+//   const { getByText } = render(<App />);
+//   const victoryElement = getByText(/Try harder!!!/);
+//   expect(victoryElement). toBeInTheDocument();
+// });   
 
 test('when initialized, a config 1 puzzle the first square in array is in row 0', () => {
   var model = new Model(actualPuzzle);
@@ -78,18 +84,19 @@ test('it is valid to extend from (0,0) to (1,0)', () => {
   // fromSquare
   let fromSquare = model.puzzle.squares[0];
   expect(model.puzzle.isValidExtend(fromSquare)).toBe(true);
-  // expect(fromSquare.label).toBe('base');
 })
 
 test('it is valid to extend from (1,0), that is labeled with "1" to (1,1)', () => {
   var model = new Model(actualPuzzle);
-
   //fromSquare
   let fromSquare = model.puzzle.squares[4];
   //add label "1" to fromSquare
   fromSquare.addLabel('1');
   //addColor to fromSquare;
   fromSquare.fillColor('red');
+
+  //update the highestLabel for red
+  model.puzzle.highestLabels[fromSquare.color] = fromSquare.label;
   //select square (1, 1)
   model.puzzle.select(model.puzzle.squares[5]);
 
@@ -187,6 +194,10 @@ test('Test is valid path', () => {
   let base4 = model.puzzle.squares[3];
   model.puzzle.select(model.puzzle.squares[7]);
   model.puzzle.extendColor(base3);
+
+
+  //console.log(model.puzzle.highestLabels); //{ red: '1', orange: '1' }
+
   expect(model.puzzle.isPath(base3, base4)).toBe(true);
 
   //the puzzle should be all filled;
@@ -302,3 +313,23 @@ test('Test valid path for config 2', () => {
   // expect(model.puzzle.hasWon()).toBe(false);
 
 })
+
+
+/**GUI test cases */
+
+// test('Access GUI', () => {
+//   const wrapper = render(<App />); //when rendered, inside a virtual screen, can't see but can refer to it.
+//   const leftButton = screen.getByTestId('left-button');
+//   const hardButton = screen.getByTestId('hard-button');
+//   const resetButton = screen.getByTestId('reset-button');
+//   const canvasElement = screen.getByTestId('canvas');
+
+//   // //initially this button is disabled.
+//   // expect(leftButton.disabled).toBeTruthy();
+//   // expect(rightButton.disabled).toBeTruthy();
+
+//   //where I click the mouse, this enables some of the buttons
+//   //1116 240 156 160
+//   fireEvent.click(canvasElement, {screenX: 1116, screenY: 240, clientX: 156, clientY: 160})
+
+// })

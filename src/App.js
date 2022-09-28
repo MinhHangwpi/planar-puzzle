@@ -31,6 +31,7 @@ function App() {
   }, [model]) //this second argument is CRITICAL, since it declares when to refresh
 
   const handleClick = (e) => {
+    // console.log(e.screenX, e.screenY, e.clientX, e.clientY);
     let newModel = selectSquare(model, canvasRef.current, e);
     setModel(newModel);
   }
@@ -58,6 +59,7 @@ function App() {
   return (
     <main style={layout.Appmain} ref={appRef}>
       <canvas
+        data-testid="canvas"
         className="App-canvas"
         ref={canvasRef}
         width={layout.canvas.width}
@@ -65,12 +67,12 @@ function App() {
         onClick={handleClick}
       />
 
-      <label style={layout.text} className={"display-5 mb-3"}> {model.isVictorious() ? "Congratulations, you have won!!!" : "Try harder!!!"}</label>
+      <label data-testid="victory-label" style={layout.text} className={"display-5 mb-3"}> {model.isVictorious() ? "Congratulations, you have won!!!" : "Try harder!!!"}</label>
 
 
       <div style={layout.buttons}>
-        <button onClick={unselectHandler} className={"btn btn-info mb-4 border border-dark"}> Unselect </button>
-        <button style={layout.resetbutton} className={"btn btn-info mb-4 border border-dark"} onClick={resetPuzzleHandler}> Reset Puzzle</button>
+        <button data-testid="unselect-button" onClick={unselectHandler} className={"btn btn-info mb-4 border border-dark"}> Unselect </button>
+        <button data-testid="reset-button" style={layout.resetbutton} className={"btn btn-info mb-4 border border-dark"} onClick={resetPuzzleHandler}> Reset Puzzle</button>
       </div>
 
 
@@ -79,16 +81,19 @@ function App() {
           <label className={"bg-gradient-dark mb-3 text-uppercase"}>Choose Your Level:</label>
         </div>
         <button
+          data-testid="easy-button"
           style={layout.easybutton}
           className={"btn btn-success border border-dark"}
           onClick={(e) => configurationHandler(configuration_1)}
         > easy</button>
         <button
+          data-testid="medium-button"
           style={layout.mediumbutton}
           className={"btn btn-warning border border-dark"}
           onClick={(e) => configurationHandler(configuration_2)}
         > medium</button>
         <button
+          data-testid="hard-button"
           style={layout.hardbutton}
           className={"btn btn-danger border border-dark"}
           onClick={(e) => configurationHandler(configuration_3)}
@@ -97,22 +102,26 @@ function App() {
 
       <div style={layout.buttons}>
         <button
+          data-testid="left-button"
           style={layout.leftbutton}
           className={"btn btn-light border border-dark"}
           onClick={(e) => extendFromHandler(0)}
           disabled={false}
         >&lt;</button>
         <button
+          data-testid="right-button"
           style={layout.rightbutton}
           className={"btn btn-light border border-dark"}
           onClick={(e) => extendFromHandler(1)}
         >&gt;</button>
         <button
+          data-testid="up-button"
           style={layout.upbutton}
           className={"btn btn-light border border-dark"}
           onClick={(e) => extendFromHandler(2)}
         >^</button>
         <button
+          data-testid="down-button"
           style={layout.downbutton}
           className={"btn btn-light border border-dark"}
           onClick={(e) => extendFromHandler(3)}

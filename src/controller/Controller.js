@@ -65,7 +65,7 @@ export function extendColorController(model, fromNeighborIdx){ //direction repre
     let selected = model.puzzle.selected;
     let fromNeighbor = model.puzzle.neighbors(selected)[fromNeighborIdx];
     model.puzzle.extendColor(fromNeighbor);
-
+    model.puzzle.unSelect();
     model.setVictorious();
     return model.copy();
 }

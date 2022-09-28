@@ -1,24 +1,24 @@
-export class ExtendType {
-    constructor(dr, dc) {
-        this.deltar = dr;
-        this.deltac = dc;
-    }
-    //later on may add more methods in here.
-    static parse(s) {
-        if ((s === "down") || (s === "Down")) { return Down; }
-        if ((s === "up") || (s === "Up")) { return Up; }
-        if ((s === "left") || (s === "Left")) { return Left; }
-        if ((s === "right") || (s === "Right")) { return Right; }
+// export class ExtendType {
+//     constructor(dr, dc) {
+//         this.deltar = dr;
+//         this.deltac = dc;
+//     }
+//     //later on may add more methods in here.
+//     static parse(s) {
+//         if ((s === "down") || (s === "Down")) { return Down; }
+//         if ((s === "up") || (s === "Up")) { return Up; }
+//         if ((s === "left") || (s === "Left")) { return Left; }
+//         if ((s === "right") || (s === "Right")) { return Right; }
 
-        return NoMove;
-    }
-}
+//         return NoMove;
+//     }
+// }
 
-export const Down = new ExtendType(1, 0, "down");
-export const Up = new ExtendType(-1, 0, "up");
-export const Left = new ExtendType(0, -1, "left");
-export const Right = new ExtendType(0, 1, "right");
-export const NoMove = new ExtendType(0, 0, "*");  // no move is possible
+// export const Down = new ExtendType(1, 0, "down");
+// export const Up = new ExtendType(-1, 0, "up");
+// export const Left = new ExtendType(0, -1, "left");
+// export const Right = new ExtendType(0, 1, "right");
+// export const NoMove = new ExtendType(0, 0, "*");  // no move is possible
 
 
 
@@ -28,7 +28,6 @@ export class Square {
         this.column = column;
         this.isUnused = isUnused;
         this.color = color;
-        //label = null at first;
         this.label = label;
     }
 
@@ -44,7 +43,6 @@ export class Square {
 
     copy() {
         let s = new Square(this.row, this.column, this.isUnused, this.color, this.label);
-        //s.selected = this.selected;
         return s;
     }
 }
@@ -55,9 +53,10 @@ export class Puzzle {
         this.numColumns = numColumns;
         this.selected = null;
     }
-    initialize(squares) {
+    initialize(squares, highestLabels) {
         //make sure to create new Square objects
         this.squares = squares.map(p => p.copy());
+        this.highestLabels = { ...highestLabels };
     }
 
     getIndexByLoc(row, column) {
@@ -83,6 +82,7 @@ export class Puzzle {
     }
 
     neighbors(square) {
+
         let neighborsList = [];
         let sRow = square.row;
         let sColumn = square.column;
@@ -120,58 +120,90 @@ export class Puzzle {
     }
 
     isValidExtend(fromSquare) {
+        let highestLabel = this.highestLabels[fromSquare.color];
+
         //    An empty square (+1) is adjacent in a given direction (+1) to a square filled with a color (+1) that has the highest label number for that color (+1). */
 
-        if ((this.selected.isUnused) || (this.selected.color !== null) || (fromSquare.color === null) || (fromSquare.isUnused) || (fromSquare.label === null)) { //note: need to add condition that the fromSquare has the highest label number.
+        if ((this.selected.isUnused) || (this.selected.color !== null) || (fromSquare.color === null) || (fromSquare.isUnused) || (fromSquare.label !== highestLabel)) { //note: need to add condition that the fromSquare has the highest label number.
             return false;
         }
-        //check if the fromSquare has the highest label number or is either empty Square.
-        if (fromSquare.label === 'base') {
-            return true;
-        }
+        return true;
+        // //check if the fromSquare has the highest label number or is either empty Square.
+        // if (fromSquare.label === 'base') {
+        //     return true;
+        // }
 
-        // if fromSquare.label is a number => must make sure it has the highest label
-        let nbs = this.neighbors(fromSquare);
-        let count = 0;
+        // // if fromSquare.label is a number => must make sure it has the highest label
+        // let nbs = this.neighbors(fromSquare);
+        // let count = 0;
 
-        for (let nb of nbs) {
-            if (nb) {
-                if ((nb.color === fromSquare.color) && (fromSquare.label > nb.label || nb.label == 'base')) {
-                    count += 1;
-                }
-            }
-        }
-        if (count >= 1) {
-            return true;
-        }
-        return false;
+        // for (let nb of nbs) {
+        //     if (nb) {
+        //         if ((nb.color === fromSquare.color) && (fromSquare.label > nb.label || nb.label == 'base')) {
+        //             count += 1;
+        //         }
+        //     }
+        // }
+        // if (count >= 1) {
+        //     return true;
+        // }
+        // return false;
     }
 
-    //&& (fromSquare.label > nb.label || nb.label == 'base')
 
     isPath(base1, base2) {
-        let queue = [];
-        queue.push(base1);
-        let visited = [];
-        visited.push(base1);
 
-        while (queue.length !== 0) {
+        /**first attempt */
+        // let queue = [];
+        // queue.push(base1);
+        // let visited = [];
+        // visited.push(base1);
 
-            let y = queue.shift(); // pop the element in the front and return it.
-            let nbs = this.neighbors(y);
+        // while (queue.length !== 0) {
+
+        //     let y = queue.shift(); // pop the element in the front and return it.
+        //     let nbs = this.neighbors(y);
+        //     for (let nb of nbs) {
+        //         if (nb) {
+        //             if (!visited.includes(nb) && (nb.color === y.color) && (+nb.label > +y.label || nb.label === 'base' || y.label === 'base')) {
+        //                 visited.push(nb);
+        //                 if (nb === base2) {
+        //                     return true;
+        //                 }
+        //                 queue.push(nb);
+        //             }
+        //         }
+        //     }
+        // }
+        // return false;
+
+
+        /**second attempt */
+        //checking if an increasing path from base1 to base2 means checking a decreasing path from base2 to base 1
+        let highestLabel = this.highestLabels[base2.color];
+        // there must exist a neighbor that has the highest label
+        let square = base2;
+        while (square !== base1) {
+            //nb of base2
+            let nbs = this.neighbors(square);
+            let hasNext = null;
             for (let nb of nbs) {
                 if (nb) {
-                    if (!visited.includes(nb) && (nb.color === y.color) && (+nb.label > +y.label || nb.label === 'base' || y.label === 'base')) {
-                        visited.push(nb);
-                        if (nb === base2) {
-                            return true;
-                        }
-                        queue.push(nb);
+                    if (nb.label == highestLabel) {
+                        //move the "square" pointer to the neighbor with the highestLabel;
+                        square = nb;
+                        //update highest label
+                        highestLabel = highestLabel - 1;
+                        hasNext = 1;
+                        break;
                     }
                 }
             }
+            if (hasNext === null){
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 
     isFull() {
@@ -189,15 +221,28 @@ export class Puzzle {
         if (fromSquare.label === 'base') {
             this.selected.addLabel("1");
             this.selected.fillColor(fromSquare.color);
+            //update the highest label
+            this.highestLabels[fromSquare.color] = this.selected.label;
+            //console.log(this.highestLabels);
             return;
         }
 
-        if (fromSquare.label !== null && typeof (+fromSquare.label) === 'number') {
-            let fSNumericLabel = +fromSquare.label;
-            this.selected.addLabel(fSNumericLabel + 1);
-            this.selected.fillColor(fromSquare.color);
-            return;
-        }
+        // if (fromSquare.label !== null && typeof (+fromSquare.label) === 'number') {
+        //     let fSNumericLabel = +fromSquare.label;
+        //     this.selected.addLabel(fSNumericLabel + 1);
+        //     this.selected.fillColor(fromSquare.color);
+        //     //update the highest label
+        //     this.highestLabels[fromSquare.color] = this.selected.label;
+        //     return;
+        // }
+
+        let fSNumericLabel = +fromSquare.label;
+        this.selected.addLabel(fSNumericLabel + 1);
+        this.selected.fillColor(fromSquare.color);
+        //update the highest label
+        this.highestLabels[fromSquare.color] = this.selected.label;
+        //console.log(this.highestLabels);
+        return;
     }
 
     getBasePairs() {
@@ -208,9 +253,9 @@ export class Puzzle {
             }
         }
         let basePairs = [];
-        while(allBases.length){
-            basePairs.push(allBases.splice(0,2))
-        };  
+        while (allBases.length) {
+            basePairs.push(allBases.splice(0, 2))
+        };
         return basePairs;
     }
 
@@ -240,6 +285,7 @@ export class Puzzle {
                 copy.selected = dup;
             }
         }
+        copy.highestLabels = { ...this.highestLabels };
         return copy;
     }
 }
@@ -266,13 +312,16 @@ export default class Model {
                 allSquares.push(aSquare);
             }
         }
-
+        let highestLabels = {};
         //special pieces
         for (let sq of info.baseSquares) {
             let bSquare = new Square(parseInt(sq.row), parseInt(sq.column), false, sq.color, 'base'); //note that isUnused of baseSquares is false
             let idx = allSquares.findIndex(square => (square.row == bSquare.row && square.column === bSquare.column));
+            highestLabels[sq.color] = 'base';
             allSquares.splice(idx, 1, bSquare);
         }
+
+
         //unused squares
         for (let sq of info.unusedSquares) {
             let uSquare = new Square(parseInt(sq.row), parseInt(sq.column), true, 'black', null);
@@ -280,20 +329,22 @@ export default class Model {
             allSquares.splice(idx, 1, uSquare);
         }
 
+
         this.puzzle = new Puzzle(numRows, numColumns);
-        this.puzzle.initialize(allSquares);
+        this.puzzle.initialize(allSquares, highestLabels);
         this.victory = false;
         this.showLabels = false;
+        // this.highestLabels = highestLabels;
     }
 
     //setVictorious()
     setVictorious() {
 
-        if (this.puzzle.isFull() && this.puzzle.hasWon()){
+        if (this.puzzle.isFull() && this.puzzle.hasWon()) {
             this.victory = true;
         } else {
             this.victory = false;
-        }       
+        }
     }
 
 
@@ -337,6 +388,7 @@ export default class Model {
         m.puzzle = this.puzzle.clone();
         m.showLabels = this.showLabels;
         m.victory = this.victory;
+        //m.highestLabels = this.highestLabels;
         return m;
     }
 }
