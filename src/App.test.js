@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 //import Model from './model/Model'; //note: duplicate with line 9
 import App from './App';
+import 'jest-canvas-mock';
 
 
 // import default puzzle to use.
@@ -20,11 +21,11 @@ test('when initilized, a config 1 puzzle has 8 squares', () => {
   expect(model.puzzle.squares.length).toBe(8);
 })
 
-// test('Properly renders no "congratulations" label', () => {
-//   const { getByText } = render(<App />);
-//   const victoryElement = getByText(/Try harder!!!/);
-//   expect(victoryElement). toBeInTheDocument();
-// });   
+test('Properly renders no "congratulations" label', () => {
+  const { getByText } = render(<App />);
+  const victoryElement = getByText(/Try harder!!!/);
+  expect(victoryElement). toBeInTheDocument();
+});   
 
 test('when initialized, a config 1 puzzle the first square in array is in row 0', () => {
   var model = new Model(actualPuzzle);
@@ -51,9 +52,9 @@ test('test square constuctor to show the label', () => {
   expect(square.label).toBe('base');
 })
 
-test('when initialized, a config 1 puzzle the first square is a red base square and has a "red" label', () => {
+test('when initialized, a config 1 puzzle the first square is a red base square and has a "0" label', () => {
   var model = new Model(actualPuzzle);
-  expect(model.puzzle.squares[0].label).toBe('base');
+  expect(model.puzzle.squares[0].label).toBe(0);
 })
 
 /**Test case for neighbors. */
@@ -75,6 +76,7 @@ test('neighbors of (1,3)', () => {
   expect(model.puzzle.neighbors(selectedSquare)[2]).toBe(model.puzzle.squares[3]);
   expect(model.puzzle.neighbors(selectedSquare)[3]).toBe(null);
 })
+
 
 /** Test is valid extend */
 test('it is valid to extend from (0,0) to (1,0)', () => {
@@ -116,7 +118,7 @@ test('Extend color from (0,0) to (1,0)', () => {
   let toSquare = model.puzzle.squares[4]
 
   expect(toSquare.color).toBe("red");
-  expect(toSquare.label).toBe("1");
+  expect(toSquare.label).toBe(1);
 
 })
 
@@ -154,17 +156,34 @@ test('Test is valid path', () => {
   model.puzzle.extendColor(base3);
   expect(model.puzzle.isPath(base3, base4)).toBe(true);
 
-  //the puzzle should be all filled;
+
+  // the puzzle should be all filled;
   expect(model.puzzle.isFull()).toBe(true);
 
-  //game should be won
+  // game should be won
   expect(model.puzzle.hasWon()).toBe(true);
 
+  //no more piece is selected
+  expect(model.puzzle.isSelected()).toBe(false);
+  // let pairs = model.puzzle.getBasePairs()
+  // console.log(pairs);
+  // console.log(model.puzzle.isPath(pairs[0][0], pairs[0][1]));
+  // console.log(model.puzzle.isPath(pairs[0][1], pairs[0][0]));
+  // console.log(model.puzzle.isPath(pairs[1][0], pairs[1][1]));
+  // console.log(model.puzzle.isPath(pairs[1][1], pairs[1][0]));
 })
 
 
-test('Test is valid path', () => {
+test('Test is not valid path', () => {
   var model = new Model(actualPuzzle);
+
+  // let pairs = model.puzzle.getBasePairs()
+  // console.log(pairs);
+  // console.log(model.puzzle.isPath(pairs[0][0], pairs[0][1]));
+  // console.log(model.puzzle.isPath(pairs[0][1], pairs[0][0]));
+  // console.log(model.puzzle.isPath(pairs[1][0], pairs[1][1]));
+  // console.log(model.puzzle.isPath(pairs[1][1], pairs[1][0]));
+
 
   let base1 = model.puzzle.squares[0];
   let base2 = model.puzzle.squares[2];
@@ -195,16 +214,16 @@ test('Test is valid path', () => {
   model.puzzle.select(model.puzzle.squares[7]);
   model.puzzle.extendColor(base3);
 
-
-  //console.log(model.puzzle.highestLabels); //{ red: '1', orange: '1' }
-
   expect(model.puzzle.isPath(base3, base4)).toBe(true);
 
   //the puzzle should be all filled;
-  expect(model.puzzle.isFull()).toBe(true);
+  // expect(model.puzzle.isFull()).toBe(true);
 
   //game should not be won
   expect(model.puzzle.hasWon()).toBe(false);
+
+
+  /****ARTIFICIALLY SET VICTORY HERE AND CHECK */
 
 })
 
@@ -224,8 +243,11 @@ test('the unused square is at row 1, column 1', () => {
 })
 
 test('Test valid path for config 2', () => {
-  var actualPuzzle = getActualPuzzle(configuration_2);
-  var model = new Model(actualPuzzle);
+  // var actualPuzzle = getActualPuzzle(configuration_2);
+  var model = new Model(actualPuzzle2);
+
+  // console.log(model.puzzle.getBasePairs());
+
   /**there must be 3 pairs of base squares */
   expect(model.puzzle.getBasePairs().length).toBe(3);
 
@@ -277,7 +299,9 @@ test('Test valid path for config 2', () => {
   model.puzzle.select(model.puzzle.squares[0]);
   model.puzzle.extendColor(model.puzzle.squares[8]);
 
-  expect(model.puzzle.isPath(base1, base2)).toBe(true);
+  // console.log(model.puzzle);
+
+  expect(model.puzzle.isPath(base2, base1)).toBe(true);
   expect(model.puzzle.hasWon()).toBe(false);
   // /**these is still no path after (1,0) is extended' */
   // //select square (0,1)
@@ -306,30 +330,30 @@ test('Test valid path for config 2', () => {
   // model.puzzle.extendColor(base3);
   // expect(model.puzzle.isPath(base3, base4)).toBe(true);
 
-  // //the puzzle should be all filled;
-  // expect(model.puzzle.isFull()).toBe(true);
+  //the puzzle should not be all filled;
+  expect(model.puzzle.isFull()).toBe(false);
 
-  // //game should not be won
-  // expect(model.puzzle.hasWon()).toBe(false);
+  //game should not be won
+  expect(model.puzzle.hasWon()).toBe(false);
 
 })
 
 
 /**GUI test cases */
 
-// test('Access GUI', () => {
-//   const wrapper = render(<App />); //when rendered, inside a virtual screen, can't see but can refer to it.
-//   const leftButton = screen.getByTestId('left-button');
-//   const hardButton = screen.getByTestId('hard-button');
-//   const resetButton = screen.getByTestId('reset-button');
-//   const canvasElement = screen.getByTestId('canvas');
+test('Access GUI', () => {
+  const wrapper = render(<App />); //when rendered, inside a virtual screen, can't see but can refer to it.
+  const leftButton = screen.getByTestId('left-button');
+  const hardButton = screen.getByTestId('hard-button');
+  const resetButton = screen.getByTestId('reset-button');
+  const canvasElement = screen.getByTestId('canvas');
 
-//   // //initially this button is disabled.
-//   // expect(leftButton.disabled).toBeTruthy();
-//   // expect(rightButton.disabled).toBeTruthy();
+  // //initially this button is disabled.
+  // expect(leftButton.disabled).toBeTruthy();
+  // expect(rightButton.disabled).toBeTruthy();
 
-//   //where I click the mouse, this enables some of the buttons
-//   //1116 240 156 160
-//   fireEvent.click(canvasElement, {screenX: 1116, screenY: 240, clientX: 156, clientY: 160})
+  //where I click the mouse, this enables some of the buttons
+  //1116 240 156 160
+  fireEvent.click(canvasElement, {screenX: 1116, screenY: 240, clientX: 156, clientY: 160})
 
-// })
+})

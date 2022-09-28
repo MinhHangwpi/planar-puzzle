@@ -151,7 +151,7 @@ export class Puzzle {
     }
 
 
-    isPath(base1, base2) {
+    isPath(fromSquare, toSquare) {
 
         /**first attempt */
         // let queue = [];
@@ -180,26 +180,27 @@ export class Puzzle {
 
         /**second attempt */
         //checking if an increasing path from base1 to base2 means checking a decreasing path from base2 to base 1
-        let highestLabel = this.highestLabels[base2.color];
+        let highestLabel = this.highestLabels[toSquare.color];
         // there must exist a neighbor that has the highest label
-        let square = base2;
-        while (square !== base1) {
+        let square = toSquare;
+        while (square !== fromSquare) {
             //nb of base2
             let nbs = this.neighbors(square);
-            let hasNext = null;
+            let hasNext = false;
             for (let nb of nbs) {
                 if (nb) {
-                    if (nb.label == highestLabel) {
+                    if (nb.label === highestLabel) {
                         //move the "square" pointer to the neighbor with the highestLabel;
                         square = nb;
                         //update highest label
                         highestLabel = highestLabel - 1;
-                        hasNext = 1;
+                        hasNext = true;
                         break;
                     }
                 }
             }
-            if (hasNext === null){
+            
+            if (!hasNext){
                 return false;
             }
         }
@@ -218,14 +219,18 @@ export class Puzzle {
     extendColor(fromSquare) {
         if (!this.selected || !this.isValidExtend(fromSquare)) { return; }
 
-        if (fromSquare.label === 'base') {
-            this.selected.addLabel("1");
-            this.selected.fillColor(fromSquare.color);
-            //update the highest label
-            this.highestLabels[fromSquare.color] = this.selected.label;
-            //console.log(this.highestLabels);
-            return;
-        }
+        /***
+         * THE BELOW IS NO LONGER NEEDED SINCE ALL LABELS ARE NUMERIC
+         */
+
+        // if (fromSquare.label === 'base') {
+        //     this.selected.addLabel("1");
+        //     this.selected.fillColor(fromSquare.color);
+        //     //update the highest label
+        //     this.highestLabels[fromSquare.color] = this.selected.label;
+        //     //console.log(this.highestLabels);
+        //     return;
+        // }
 
         // if (fromSquare.label !== null && typeof (+fromSquare.label) === 'number') {
         //     let fSNumericLabel = +fromSquare.label;
@@ -236,22 +241,35 @@ export class Puzzle {
         //     return;
         // }
 
-        let fSNumericLabel = +fromSquare.label;
-        this.selected.addLabel(fSNumericLabel + 1);
+        let fromLabel = fromSquare.label;
+        this.selected.addLabel(fromLabel + 1);
         this.selected.fillColor(fromSquare.color);
         //update the highest label
         this.highestLabels[fromSquare.color] = this.selected.label;
-        //console.log(this.highestLabels);
+        // console.log(this.highestLabels);
         return;
     }
 
     getBasePairs() {
         let allBases = [];
         for (let square of this.squares) {
-            if (square.label === 'base') {
+            if (square.label === 0 && square.color && square.color !== 'black') {
                 allBases.push(square);
             }
         }
+
+        allBases.sort((a, b) => {
+            if (a.color < b.color) {
+                return -1;
+              }
+              if (a.color > b.color) {
+                return 1;
+              }
+              // a must be equal to b
+              return 0;
+        })
+
+
         let basePairs = [];
         while (allBases.length) {
             basePairs.push(allBases.splice(0, 2))
@@ -260,17 +278,45 @@ export class Puzzle {
     }
 
     //hasWon()
+
+    /***first attempt */
+
+    // hasWon() {
+    //     if (!this.isFull) {
+    //         return false;
+    //     }
+    //     let basePairs = this.getBasePairs();
+    //     for (let base of basePairs) {
+    //         if (!this.isPath(base[0], base[1]) || !this.isPath(base[1], base[0])) {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
+
+    /***second attempt */
     hasWon() {
         if (!this.isFull) {
             return false;
         }
         let basePairs = this.getBasePairs();
-        for (let base of basePairs) {
-            if (!this.isPath(base[0], base[1]) || !this.isPath(base[1], base[0])) {
-                return false;
+        let numBasePairs = basePairs.length;
+        
+        let pathConnected = 0;
+        for (let basePair of basePairs) {
+            // if (!this.isPath(basePair[0], basePair[1]) || !this.isPath(basePair[1], basePair[0])) {
+            //     return false;
+            // }
+
+            if (this.isPath(basePair[0], basePair[1]) || this.isPath(basePair[1], basePair[0])) {
+                pathConnected++;
+            }
+
+            if (pathConnected === numBasePairs){
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
 
@@ -308,23 +354,22 @@ export default class Model {
         let allSquares = [] //numRows * numColumns in length.
         for (let i = 0; i < numRows; i++) {
             for (let j = 0; j < numColumns; j++) {
-                let aSquare = new Square(i, j, false, null, null);
+                let aSquare = new Square(i, j, false, null, 0);
                 allSquares.push(aSquare);
             }
         }
         let highestLabels = {};
         //special pieces
         for (let sq of info.baseSquares) {
-            let bSquare = new Square(parseInt(sq.row), parseInt(sq.column), false, sq.color, 'base'); //note that isUnused of baseSquares is false
-            let idx = allSquares.findIndex(square => (square.row == bSquare.row && square.column === bSquare.column));
-            highestLabels[sq.color] = 'base';
+            let bSquare = new Square(parseInt(sq.row), parseInt(sq.column), false, sq.color, 0); //note that isUnused of baseSquares is false
+            let idx = allSquares.findIndex(square => (square.row === bSquare.row && square.column === bSquare.column));
+            highestLabels[sq.color] = 0;
             allSquares.splice(idx, 1, bSquare);
         }
 
-
         //unused squares
         for (let sq of info.unusedSquares) {
-            let uSquare = new Square(parseInt(sq.row), parseInt(sq.column), true, 'black', null);
+            let uSquare = new Square(parseInt(sq.row), parseInt(sq.column), true, 'black', 0);
             let idx = allSquares.findIndex(square => (square.row === uSquare.row && square.column === uSquare.column));
             allSquares.splice(idx, 1, uSquare);
         }
@@ -352,36 +397,6 @@ export default class Model {
     isVictorious() {
         return this.victory;
     }
-
-
-    //available(direction)
-    // available(idx){
-    //     let fromNeighbor = this.neighbors(this.selected)[idx];
-    //     return this.isValidExtend(fromNeighbor);
-
-
-    //         //   // if no piece selected? Then none are available.
-    //         //   if (!this.puzzle.selected) { return false; }
-    //         //   if (direction === NoMove) { return false; }
-
-    //         //   // HANDLE WINNING CONDITION. MUST BE AVAILABLE!
-    //         //   if (this.puzzle.selected.isWinner && 
-    //         //       this.puzzle.selected.row === this.puzzle.destination.row && 
-    //         //       this.puzzle.selected.column === this.puzzle.destination.column && 
-    //         //       this.puzzle.finalMove === direction) {
-    //         //       return true;
-    //         //   }
-
-    //         //   let allMoves = this.puzzle.availableMoves();
-    //         //   return allMoves.includes(direction);
-    // }
-    // available(index) {
-    //     let selected = this.puzzle.selected;
-    //     if (!this.puzzle.selected) { return false; }
-
-
-    // }
-
 
     copy() {
         let m = new Model(this.info);
