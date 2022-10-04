@@ -1,9 +1,11 @@
 import React from 'react';
+import logo from './logo.svg';
 import './App.css';
 import { layout } from './Layout.js'
 import Model from './model/Model.js';
 
 import { configuration_1, configuration_2, configuration_3, getActualPuzzle } from './model/PuzzleConfig.js';
+import { Up, Down, Left, Right } from './model/Model.js';
 import { redrawCanvas } from './boundary/Boundary';
 import { selectSquare, setConfiguration, unselectSquare, resetPuzzle, extendColorController } from './controller/Controller';
 
@@ -23,12 +25,19 @@ function App() {
 
   /**Ensures initial rendering is performed, and that whenever the model changes, it is re-rendered. */
   React.useEffect(() => {
+    //document.querySelector('.App-canvas').height = 800
     /** Happens once */
     redrawCanvas(model, canvasRef.current, appRef.current);
   }, [model]) //this second argument is CRITICAL, since it declares when to refresh
 
   const handleClick = (e) => {
+    // console.log(e.screenX, e.screenY, e.clientX, e.clientY);
     let newModel = selectSquare(model, canvasRef.current, e);
+    setModel(newModel);
+  }
+
+  const unselectHandler = (e) => {
+    let newModel = unselectSquare(model);
     setModel(newModel);
   }
 
@@ -57,10 +66,15 @@ function App() {
         height={layout.canvas.height}
         onClick={handleClick}
       />
+
+      <label data-testid="victory-label" style={layout.text} className={"display-5 mb-3"}> {model.isVictorious() ? "Congratulations, you have won!!!" : "Try harder!!!"}</label>
+
+
       <div style={layout.buttons}>
+        <button data-testid="unselect-button" onClick={unselectHandler} className={"btn btn-info mb-4 border border-dark"}> Unselect </button>
         <button data-testid="reset-button" style={layout.resetbutton} className={"btn btn-info mb-4 border border-dark"} onClick={resetPuzzleHandler}> Reset Puzzle</button>
       </div>
-      <label data-testid="victory-label" style={layout.text} className={"display-5 mb-3"}> {model.isVictorious() ? "Congratulations, you have won!!!" : "Try harder!!!"}</label>
+
 
       <div style={layout.levels}>
         <div>
@@ -87,13 +101,38 @@ function App() {
       </div>
 
       <div style={layout.buttons}>
-        <button data-testid="left-button" style={layout.leftbutton} className={"btn btn-dark"} onClick={(e) => extendFromHandler(0)} disabled={!model.available(0)} >&lt; </button>
-        <button data-testid="right-button" style={layout.rightbutton} className={"btn btn-dark"} onClick={(e) => extendFromHandler(1)} disabled={!model.available(1)} >&gt;</button>
-        <button data-testid="up-button" style={layout.upbutton} className={"btn btn-dark"} onClick={(e) => extendFromHandler(2)} disabled={!model.available(2)} >^</button>
-        <button data-testid="down-button" style={layout.downbutton} className={"btn btn-dark"} onClick={(e) => extendFromHandler(3)} disabled={!model.available(3)} >v</button>
+        <button
+          data-testid="left-button"
+          style={layout.leftbutton}
+          className={"btn btn-light border border-dark"}
+          onClick={(e) => extendFromHandler(0)}
+          disabled={false}
+        >&lt;</button>
+        <button
+          data-testid="right-button"
+          style={layout.rightbutton}
+          className={"btn btn-light border border-dark"}
+          onClick={(e) => extendFromHandler(1)}
+        >&gt;</button>
+        <button
+          data-testid="up-button"
+          style={layout.upbutton}
+          className={"btn btn-light border border-dark"}
+          onClick={(e) => extendFromHandler(2)}
+        >^</button>
+        <button
+          data-testid="down-button"
+          style={layout.downbutton}
+          className={"btn btn-light border border-dark"}
+          onClick={(e) => extendFromHandler(3)}
+        >v</button>
+
       </div>
+
     </main>
   );
 }
 
 export default App;
+
+//canvas is where everything happens.

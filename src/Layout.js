@@ -5,7 +5,7 @@ export const layout = {
     },
 
     Appmain: {
-        backgroundColor: '#f9f4e',
+        backgroundColor: '#f9f4ec',
         height: '100vh',
         width: '100vw'
     },
