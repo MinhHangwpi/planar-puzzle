@@ -25,16 +25,6 @@ export function selectSquare(model, canvas, event) {
     }
 }
 
-/**
- * Unselect
- * - condition: if the select of a piece is ON, then deselect it and update state of model.
- */
-
-export function unselectSquare(model) {
-    model.puzzle.unSelect();
-    return model.copy();
-}
-
 
 export function setConfiguration(configObject){
     var actualPuzzle = getActualPuzzle(configObject);
