@@ -82,3 +82,7 @@ Ran all test suites.
 
 Choose the *puzzle configuration level* (default at easy level). \
 Use the `left`, `right`, `up`, `down` to indicate which neighbor the selected square will extend color *from*. For example, if the selected square is located at the second row and the first column, then the `up` button will indicate the neighbor in the first row and first column.
+
+## Contact me
+
+If you run into any issue, please contact me via mgradetsky@wpi.edu. Thank you very much!
