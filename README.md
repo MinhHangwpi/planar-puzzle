@@ -1,7 +1,7 @@
 ## Download the source code in `src` folder
 
 
-- Create a local folder and use ```create-react-app``` to initialize the react repository, named it as “plannar-puzzle-app” or what you see fit.
+- Create a local folder and use ```npx create-react-app planar-app``` to initialize the react repository.
 - Then replace the `src` folder of your initialized react app repository with the `src` folder here. 
 
 ## Download relevant packages and dependencies
@@ -20,6 +20,19 @@ npm i --save-dev canvas
 npm I --save-dev @testing-libray/jest-dom
 ```
 Notes: do **not** alter the content of `setupTests.js`
+
+### include CDN links for Bootrap for styling of the app
+Inside the file `./public/index.html` inject the following link within the `<header> tags`
+```
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+```
+Also in the same file, inject the following links within the `<body>` tags:
+```
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
+    crossorigin="anonymous"></script>
+```
 
 ## To run the app in the browser
 
