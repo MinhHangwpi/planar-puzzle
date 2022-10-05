@@ -2,7 +2,7 @@
 
 
 - Create a local folder and use ```create-react-app``` to initialize the react repository, named it as “plannar-puzzle-app” or what you see fit.
-- Then replace the “src” folder of your initialized react app repository with the “src” folder here. 
+- Then replace the `src` folder of your initialized react app repository with the `src` folder here. 
 
 ## Download relevant packages and dependencies
 
