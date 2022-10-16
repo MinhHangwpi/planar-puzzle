@@ -55,7 +55,9 @@ export function drawPuzzle(ctx, puzzle, showLabels) {
         // if (square.color) {
         //     ctx.fillText(square.color, sq.row, sq.column);
         // }
-        ctx.fillText(square.label, sq.row, sq.column) // issue with label here.
+        ctx.font = '40px serif';
+        ctx.fillStyle = 'black'
+        ctx.fillText(square.label, sq.row + 35, sq.column + 50) // issue with label here.
     })
 }
 
