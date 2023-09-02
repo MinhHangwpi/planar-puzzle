@@ -1,15 +1,8 @@
-## Download the source code in `src` folder
+## 1. Get the app by cloning the repository
 
+To clone the app `git clone https://github.com/MinhHangwpi/planar-puzzle.git`
 
-- Create a local folder and use ```npx create-react-app planar-app``` to initialize the react repository.
-- Then replace the `src` folder of your initialized react app repository with the `src` folder here. 
-
-## Download relevant packages and dependencies
-
-### ```react-scripts```
-
-The first time you retrieve this code, you will need to install the react scripts to work properly. To do this, type:
-```npm install react-scripts –-save```
+locate to the planar-puzzle directory and run `npm install` to install all packages and dependencies in the package.json
 
 ### Additional library for GUI testing
 jest-dom to handle canvas elements for testing. Uninstall jest-canvas-mock (if installed) and install canvas and jest-dom
@@ -21,29 +14,16 @@ npm I --save-dev @testing-libray/jest-dom
 ```
 Notes: do **not** alter the content of `setupTests.js`
 
-### include CDN links for Bootrap for styling of the app
-Inside the file `./public/index.html` inject the following link within the `<header> tags`
-```
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-```
-Also in the same file, inject the following links within the `<body>` tags:
-```
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
-    crossorigin="anonymous"></script>
-```
+run `npm start` to spin up the web app, and open http://localhost:3000 to view it in your browser
 
-## To run the app in the browser
+## 2. Get the app via a Docker image
 
-In the project directory, you can run:
-### ```npm start``` 
-Runs the app in the development mode.
-Open http://localhost:3000 to view it in your browser.
-The page will reload when you make changes.
-You may also see any lint errors in the console.
+- Pull the image `docker pull minhhang1996/planar-puzzle:v1.2`
+- to run `docker run -p 3000:3000 planar-puzzle:v1.2`
+- Open http://localhost:3000 to view it in your browser.
 
-### ```npm test``` 
+## To run unit tests
+ ```npm test``` 
 Launches the test runner in the interactive watch mode.
 See the section about running tests for more information.
 
