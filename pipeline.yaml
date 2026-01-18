@@ -1,7 +1,7 @@
 pipeline:
   name: Planar Puzzle CI
   identifier: Planar_Puzzle_CI
-  projectIdentifier: Your_Project
+  projectIdentifier: HarnessIntroTutorials
   orgIdentifier: default
   stages:
     - stage:
@@ -38,7 +38,7 @@ pipeline:
                   name: Build and Push to Docker Hub
                   identifier: build_push
                   spec:
-                    connectorRef: Your_DockerHub_Connector_ID
+                    connectorRef: dockerhub_minhhang
                     imageRepository: minhhang1996/planar-puzzle
                     tags:
                       - v1.2
