@@ -1,0 +1,45 @@
+pipeline:
+  name: Planar Puzzle CI
+  identifier: Planar_Puzzle_CI
+  projectIdentifier: Your_Project
+  orgIdentifier: default
+  stages:
+    - stage:
+        name: Build and Test
+        identifier: build_and_test
+        type: CI
+        spec:
+          cloneCodeRepo: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Test with Coverage
+                  identifier: test_coverage
+                  spec:
+                    connectorRef: account.harnessImage # Uses public Docker Hub
+                    image: node:18-slim
+                    shell: Sh
+                    command: |-
+                      # Install native system deps for canvas
+                      apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+                      
+                      npm install
+                      # Run coverage as requested
+                      CI=true npm test -- --coverage --watchAll=false
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and Push to Docker Hub
+                  identifier: build_push
+                  spec:
+                    connectorRef: Your_DockerHub_Connector_ID
+                    imageRepository: minhhang1996/planar-puzzle
+                    tags:
+                      - v1.2
+                      - <+pipeline.sequenceId>
